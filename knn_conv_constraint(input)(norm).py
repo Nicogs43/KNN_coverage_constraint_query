@@ -128,11 +128,6 @@ def knn_cov_cons (num_to_be_found, val_pred, space, norm_data):
 
   """
     # normalizzazione kdtree deve lavorare sulle colonne normalizzate
-    print("norm_val", val_pred)
-    print(norm_data[:, 0].min())
-    print(norm_data[:, 0].max())
-    print(norm_data[:, 1].min())
-    print(norm_data[:, 1].max())
     plt.scatter(norm_data[:, 0], norm_data[:, 1])
     plt.title('dati normalizzati')
     plt.show()
@@ -154,7 +149,6 @@ def normalize_data (to_be_normalised):
     :param to_be_normalised: matrice dei dati da normalizzare
     :param relax_attributes: oggetto che mantiene le informazioni della query iniziale
     """
-    # il problema secondo me è lo scambio tra massimo e minino, infatti il grafico viene al contrario nel caso i segni nella query siano > o >= mentre nell'altro caso il grafico si mantiene uguale(a quello senza normalizzazione) solo scalato come è giusto che sia
     for i in range(to_be_normalised.shape[1]):
         min = to_be_normalised[:, i].min()
         max = to_be_normalised[:, i].max()
@@ -243,16 +237,12 @@ def proximity (relax_attr, relax_attr_Qind):
 
 
 def max_min_per_column (df, relax_attr):
-    max_list = []
-    min_list = []
     for i in relax_attr:
         curr_max = df[i['attr']].max()
         curr_min = df[i['attr']].min()
-        max_list.append(curr_max)
-        min_list.append(curr_min)
-    for i in range(len(relax_attr)):
-        relax_attr[i]['val_max_col'] = max_list[i]
-        relax_attr[i]['val_min_col'] = min_list[i]
+        i['val_max_col'] = curr_max
+        i['val_min_col'] = curr_min
+
 
 
 def read_table (c, table):  # , attributes
@@ -272,7 +262,6 @@ def knn_res_Qind (query, CC, df, list_columns):
     list_temp = []
     orig_query, relax_attributes = query_pred_tokenize(query)
     max_min_per_column(df, relax_attributes)
-    print(relax_attributes)
     initial_query_results = df.query(orig_query)
     card_AS_Q: List[int] = counts_Value_col(initial_query_results, CC)
     list_attr, list_col_pred, list_val_pred = attr_val_to_list(relax_attributes, list_columns)
@@ -280,11 +269,8 @@ def knn_res_Qind (query, CC, df, list_columns):
     point_normalized = [point_normalized]
     list_val_pred = [list_val_pred]
     card_tot_Q = initial_query_results.shape[0]
-    print("card_tot_Q", card_tot_Q)
-    print("card_AS_Q", card_AS_Q)
     com_orig_query = transform_Q_to_compQ(
         orig_query)
-    print(com_orig_query)
     time_tree_exec = 0.0
     for indx in range(len(card_AS_Q)):
         if card_AS_Q[indx] >= int(CC[indx]['num']):
@@ -304,7 +290,6 @@ def knn_res_Qind (query, CC, df, list_columns):
         knn_points = knn_cov_cons(num_to_be_found, point_normalized, space, norm_data)
         time_tree_exec = (time.time() - start_time_tree)
         res_space = pd.DataFrame(knn_points, columns=list_columns)
-        print(res_space)
         list_temp.append(
             res_space)
     #### RES APPROCCIO ESECUZIONE ####
@@ -314,8 +299,6 @@ def knn_res_Qind (query, CC, df, list_columns):
 
     card_AS_res: List[int] = counts_Value_col(last_result, CC)
     card_tot_res = last_result.shape[0]
-    print("Card_tot_res", card_tot_res)
-    print("card_as_res", card_AS_res)
     time_exec = time.time() - start_time
 
     #### QUERY INDOTTA ####
@@ -324,14 +307,12 @@ def knn_res_Qind (query, CC, df, list_columns):
                                     relax_attributes)
 
     induced_Q_inSQL = induced_query(query, list_res, list_val_pred)
-    print(induced_Q_inSQL)
     time_exec_Qind = time.time() - start_time_Qind
     induced_Q, relax_attributes_Qind = query_pred_tokenize(induced_Q_inSQL)
     df_induced_query = df.query(induced_Q)
     card_tot_Qind = df_induced_query.shape[0]
-    print("Card_Tot_Qind", card_tot_Qind)
     card_AS_Qind: List[int] = counts_Value_col(df_induced_query, CC)
-    print("Card_AS_Qind", card_AS_Qind)
+    print(card_AS_Qind)
     test_res_temp = [len(relax_attributes),
                      query,
                      card_tot_Q,
@@ -383,18 +364,14 @@ def main ():
                                             'time_read_table'
                                             ])
     # CC = [{'AS': ['sex'], 'value': ['Female'], 'num': '13689'}]
-    CC = [{'AS': ['race'], 'value': ['Black'], 'num': '60'}]
-    # for i in range(len(CC)):
-    # CC[i]['num'] = str(input("inserisci il numero da raggiungere per il constraint: "))
+    CC = [{'AS': ['race'], 'value': ['Black'], 'num': '0'}]
+    for i in range(len(CC)):
+        CC[i]['num'] = str(input("inserisci il numero da raggiungere per il constraint: "))
     df = pd.read_csv('C:/Users/Nicolò/Desktop/Tesi/adult_data.csv')
-    # fig, scatter = plt.subplots(figsize=(10, 6), dpi=100)
-    # scatter =sns.scatterplot(data=df , x="hours_per_week", y ="education_num" , hue="race")
-    # plt.show()
-    pd.set_option("display.max_rows", None, "display.max_columns", None)
-    np.set_printoptions(threshold=np.inf)
     list_columns = list(
         df.columns)
-    query = 'SELECT * FROM adult_data WHERE education_num >= 14 AND hours_per_week >40'  # str(input("Inserire la query: "))' SELECT * FROM adult_data WHERE capital_loss < 1500 AND age < 55'
+    query = str(input(
+        "Inserire la query: "))  # ' SELECT * FROM adult_data WHERE capital_loss < 1500 AND age < 55''SELECT * FROM adult_data WHERE education_num >= 14 AND hours_per_week >40'
 
     # c = psycopg2.connect(host='localhost', port=5432, user='Insert_Here_Your_User',
     # password='Insert_Here_Your_Password', database='postgres')
@@ -405,7 +382,7 @@ def main ():
     test_res_temp += [time_end_read_table]
     s = pd.Series(test_res_temp, index=test_result_csv.columns)
     test_result_csv = test_result_csv.append(s, ignore_index=True)
-    # test_result_csv.to_csv('file1.csv', index=False)
+    test_result_csv.to_csv('file1.csv', index=False)
 
 
 if __name__ == '__main__':
