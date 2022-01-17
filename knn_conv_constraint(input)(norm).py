@@ -92,7 +92,6 @@ def get_comp_query_result (CC: object, indice: int, com_orig_query: str, df):
 
     condition_str = (' & ').join(
         [sens_attr + ' == \'' + CC[indice]['value'][x] + '\'' for x, sens_attr in enumerate(CC[indice]['AS'])])
-    print(condition_str)
     complementary_query_AS = complementary_query_res.query(condition_str)
     sens_comp_q_value_count = counts_Value_col(complementary_query_AS, CC)
     num_values_AS = sens_comp_q_value_count[indice]
@@ -238,10 +237,9 @@ def proximity (relax_attr, relax_attr_Qind):
 
 def max_min_per_column (df, relax_attr):
     for i in relax_attr:
-        curr_max = df[i['attr']].max()
-        curr_min = df[i['attr']].min()
-        i['val_max_col'] = curr_max
-        i['val_min_col'] = curr_min
+        i['val_max_col'] = df[i['attr']].max()
+        i['val_min_col'] = df[i['attr']].min()
+
 
 
 
@@ -312,7 +310,6 @@ def knn_res_Qind (query, CC, df, list_columns):
     df_induced_query = df.query(induced_Q)
     card_tot_Qind = df_induced_query.shape[0]
     card_AS_Qind: List[int] = counts_Value_col(df_induced_query, CC)
-    print(card_AS_Qind)
     test_res_temp = [len(relax_attributes),
                      query,
                      card_tot_Q,
