@@ -6,14 +6,14 @@ import pandas as pd
 import calc_measures_sol as measures_chiara
 import knn_conv_costraint_NEW_con_norm as knn_cov
 
-path = r'C:\Users\Nicolò\Desktop\Tesi\res2  - rewrinting'  # use your path
+path = r'C:\Users\Nicolò\Desktop\Tesi\res3_rewriting'  # use your path
 all_files = glob.glob(path + "/*.csv")
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 result_csv = pd.DataFrame(columns=[
     'id',
     'query',
     'path',
-    'Coverage costraint',
+    'Coverage Constraint',
     'card_true_tot_Q',
     'card_true_sa_Q',
     'card_true_tot_newQ',
@@ -47,7 +47,7 @@ for filename in all_files:
     summed_times_qcut = qcut_dataframe.loc[:,
                         ['time_preprocessing', 'time_pruning', 'time_algo']].sum(axis=1).mean()
     s = pd.Series(
-        [int(filename[65:].strip('.csv').strip('Q')), df['query'].iloc[0], filename, df['CC'].iloc[0],
+        [int(filename[filename.find('Q'):].strip('.csv').strip('Q')), df['query'].iloc[0], filename, df['CC'].iloc[0],
          qcut_first_row['card_true_tot_Q'], card_true_sa_Q,
          qcut_first_row['card_true_tot_newQ'],
          card_true_sa_newQ, proximity_qcut, relaxation_degree, disparity_index, fairness_index,
@@ -59,6 +59,6 @@ for filename in all_files:
 result_csv.sort_values(by="id", inplace=True)
 
 result_csv.to_csv(r'C:\Users\Nicolò\Desktop\Tesi\result_experiment\test_result_1.csv', index=False)
-writer = pd.ExcelWriter(r'C:\Users\Nicolò\Desktop\Tesi\res2 - xls_file\test_result_1.xlsx')
+writer = pd.ExcelWriter(r'C:\Users\Nicolò\Desktop\Tesi\res3-xls_file\test_result_1.xlsx')
 result_csv.to_excel(writer)
 writer.save()

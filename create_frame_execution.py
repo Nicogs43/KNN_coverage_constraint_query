@@ -7,7 +7,7 @@ import pandas as pd
 import calc_measures_sol as measures_chiara
 import knn_conv_costraint_NEW_con_norm as knn_cov
 
-path = r'C:\Users\Nicolò\Desktop\Tesi\res2 - execution'  # use your path
+path = r'C:\Users\Nicolò\Desktop\Tesi\res3_execution'  # use your path
 all_files = glob.glob(path + "/*.csv")
 
 result_csv = pd.DataFrame(columns=[
@@ -33,7 +33,7 @@ result_csv = pd.DataFrame(columns=[
 Qind_result_csv = pd.DataFrame(columns=[
     'id', 'Qind',
     'path',
-    'Coverage constraint',
+    'Coverage Constraint',
     'card_true_tot_Q',
     'card_true_sa_Q',
     'card_true_tot_Qind',
@@ -117,9 +117,9 @@ Qind_result_csv.sort_values(by="id", inplace=True)
 
 result_csv.to_csv(r'C:\Users\Nicolò\Desktop\Tesi\result_experiment\test_result_exec_1.csv', index=False)
 Qind_result_csv.to_csv(r'C:\Users\Nicolò\Desktop\Tesi\result_experiment\test_Qind_exec_1.csv', index=False)
-writer = pd.ExcelWriter(r'C:\Users\Nicolò\Desktop\Tesi\res2 - xls_file\test_result_exec_1.xlsx')
+writer = pd.ExcelWriter(r'C:\Users\Nicolò\Desktop\Tesi\res3-xls_file\test_result_exec_1.xlsx')
 result_csv.to_excel(writer)
-writer_1 = pd.ExcelWriter(r'C:\Users\Nicolò\Desktop\Tesi\res2 - xls_file\test_Qind_exec_1.xlsx')
+writer_1 = pd.ExcelWriter(r'C:\Users\Nicolò\Desktop\Tesi\res3-xls_file\test_Qind_exec_1.xlsx')
 Qind_result_csv.to_excel(writer_1)
 writer.save()
 writer_1.save()
