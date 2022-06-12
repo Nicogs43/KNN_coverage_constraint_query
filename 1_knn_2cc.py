@@ -96,12 +96,10 @@ def get_comp_query_result (CC: object, indice: int, comp_q: str, df):
     # """funzione che produce lo spazio in cui l'albero cercherà i k vicini per il risultato finale"""
 
     complementary_query_AS = df.query(comp_q)
-    # complementary_query_AS = complementary_query_res.query(condition_str)
     sens_comp_q_value_count = counts_Value_col(complementary_query_AS, CC)
     num_values_AS = sens_comp_q_value_count[indice]
 
     space = complementary_query_AS.to_numpy()  # trasformo con numpy il dataframe per poterlo passare alla funzione KDtree# spazio su cui cercare i k vicini
-    # print(complementary_query_AS, len(complementary_query_AS))
     return num_values_AS, space
 
 
@@ -114,7 +112,6 @@ def attr_val_to_list (relxattr, list_columns):
         list_attr.append(i['attr'])
         list_val_pred.append(i['val'])
 
-    # list_val_pred = [list_val_pred] ###
     test_col = [list_columns.index(i) for i in list_attr]
 
     return list_attr, test_col, list_val_pred
@@ -136,7 +133,6 @@ def knn_cov_cons (num_to_be_found, val_pred, space, norm_data, list_columns):
 
     res_space = pd.DataFrame(space[ind[0]], columns=list_columns)
     return res_space
-    # return space[ind[0]]
 
 
 def norm_point (point_to_normalise, relax_attr):
@@ -316,9 +312,6 @@ def knn_res_Qind (query, CC, df, list_columns):
     bb2 = time.time()
     complementary_spaces = [complementary.loc[eval(cond_cc[i])] for i in range(0, len(cond_cc))]
     time1_2 = time.time()
-    print(orig_query
-          )
-    print("comp", to_code(orig_query))
 
     ## we count how many individuals for each protected group are in the result
     card_AS_Q = [len(initial_query_results.loc[eval(cond_cc2[i])]) for i in range(0, len(cond_cc2))]
@@ -346,8 +339,6 @@ def knn_res_Qind (query, CC, df, list_columns):
         # trasformo dati in matrice per knn e normalizzo
         start_time4 = time.time()
         card_AS_Qcomp = len(complementary_spaces[indx])
-        print(card_AS_Qcomp
-              )
         space = complementary_spaces[
             indx].to_numpy()  # trasformo con numpy il dataframe per poterlo passare alla funzione KDtree# spazio su cui cercare i k vicini
         norm_data = normalize_data(space[:, list_col_pred], relax_attributes)  # 0.0089755
@@ -379,8 +370,6 @@ def knn_res_Qind (query, CC, df, list_columns):
 
     time_finalres = (end_time - end_time_for)
     time_exec = end_time - start_time
-    print('TEMPOOOOOOOO ', time_exec, 'tempi df e as', time_for_df_cc, time_for_df, time_query_as, 'time_final_res:',
-          time_finalres)
 
     card_AS_res: List[int] = counts_Value_col(initial_query_results, CC)
     card_tot_res = initial_query_results.shape[0]
@@ -392,10 +381,6 @@ def knn_res_Qind (query, CC, df, list_columns):
         start_time_Qind = time.time()
         list_res: List[Union[int, Any]] = get_new_val_for_pred(res_space_no_duplicate, list_attr, relax_attributes)
         induced_Q_inSQL = induced_query(query, list_res, list_val_pred)
-        print(res_space_no_duplicate['age'].max())
-        print("list_attr", list_attr)
-        print("List_val_pred", list_val_pred)
-        print("list_res", list_res)
 
         time_exec_Qind = time.time() - start_time_Qind
 
