@@ -74,10 +74,10 @@ def change_op_to_compQ (query: str):
     return query
 
 
-def counts_Value_col (sample, k: object):
-    # """funzione che calcola per ogni elemento di CC la cvardinalità del gruppo protetto sul dataframe passato"""
+def counts_Value_col (sample, CC: object):
+    # """funzione che calcola per ogni elemento di CC la cardinalità del gruppo protetto sul dataframe passato"""
     sens_values_count: List[int] = []
-    for cond in k:
+    for cond in CC:
         condition = (' & ').join(
             [sens_attr + ' == \'' + cond['value'][x] + '\'' for x, sens_attr in enumerate(cond['AS'])])
         sens_values_count.append(sample.query(condition).shape[0])
@@ -85,17 +85,18 @@ def counts_Value_col (sample, k: object):
     return sens_values_count
 
 
-def get_comp_query_result (CC: object, indice: int, com_orig_query: str, df):
+def get_comp_query_result (CC: object, index: int, com_orig_query: str, df):
     # """funzione che produce lo spazio in cui l'albero cercherà i k vicini per il risultato finale"""
 
-    complementary_query_res = df.query(com_orig_query)  # complementare della query originale, quindi lo spazio in cui devo cercare i restanti elementi per arrivare al valore indicato nel CC
+    complementary_query_res = df.query(
+        com_orig_query)  # complementare della query originale, quindi lo spazio in cui devo cercare i restanti elementi per arrivare al valore indicato nel CC
 
     condition_str = (' & ').join(
-        [sens_attr + ' == \'' + CC[indice]['value'][x] + '\'' for x, sens_attr in enumerate(CC[indice]['AS'])])
+        [sens_attr + ' == \'' + CC[index]['value'][x] + '\'' for x, sens_attr in enumerate(CC[index]['AS'])])
 
     complementary_query_AS = complementary_query_res.query(condition_str)
     sens_comp_q_value_count = counts_Value_col(complementary_query_AS, CC)
-    num_values_AS = sens_comp_q_value_count[indice]
+    num_values_AS = sens_comp_q_value_count[index]
 
     space = complementary_query_AS.to_numpy()  # trasformo con numpy il dataframe per poterlo passare alla funzione KDtree# spazio su cui cercare i k vicini
     # print(complementary_query_AS, len(complementary_query_AS))
@@ -120,7 +121,7 @@ def attr_val_to_list (relxattr, list_columns):
 
 
 def knn_cov_cons (num_to_be_found, val_pred, space, norm_data):
-  #   """
+    """
   # #funzione che cerca gli attributi mancanti per soddisfare il vincolo di copertura
   #   :param num_to_be_found: numeri di vicini da trovare per raggiunger il CC
   #   :param space: lista degli elementi utili estratti dalla query originale
@@ -130,9 +131,6 @@ def knn_cov_cons (num_to_be_found, val_pred, space, norm_data):
   #
   # """
     # normalizzazione kdtree deve lavorare sulle colonne normalizzate
-    # plt.scatter(norm_data[:, 0], norm_data[:, 1])
-    # plt.title('dati normalizzati')
-    # plt.show()
 
     tree = KDTree(norm_data)  # creo l'albero KDtree sullo spazio esterno in cui poi cercare gli elementi più vicini
     dist, ind = tree.query(val_pred, k=num_to_be_found)
@@ -147,7 +145,6 @@ def norm_point (point_to_normalise, relax_attr):
     return point_norm
 
 
-
 # def normalize_data (to_be_normalised, relax_attributes):
 def normalize_data (to_be_normalised):
     # """funzione che normalizza le colonne in cui andare a cercare i k vicini
@@ -155,7 +152,7 @@ def normalize_data (to_be_normalised):
     # :param relax_attributes: oggetto che mantiene le informazioni della query iniziale
     # """
     # print(list_norm_data, relax_attributes)
-    for i in range( to_be_normalised.shape[1]):
+    for i in range(to_be_normalised.shape[1]):
         min = to_be_normalised[:, i].min()
         max = to_be_normalised[:, i].max()
         for j in range(to_be_normalised.shape[0]):
@@ -173,7 +170,7 @@ def get_new_val_for_pred (knn_found, attr_of_pred, relax_attributes):
         elif relax_attributes[indx]['op'] == '<=':
             list_res.append(knn_found[attr_of_pred[indx]].max())
         elif relax_attributes[indx]['op'] == '>':
-            if knn_found[attr_of_pred[indx]].min() <=0:
+            if knn_found[attr_of_pred[indx]].min() <= 0:
                 list_res.append(knn_found[attr_of_pred[indx]].min())
                 continue
             list_res.append(knn_found[attr_of_pred[indx]].min() - 1)
@@ -185,7 +182,8 @@ def get_new_val_for_pred (knn_found, attr_of_pred, relax_attributes):
 def induced_query (query, list_res, list_val_pred):
     # """funzione che crea la query indotta"""
     # print(query, list_res, list_val_pred)
-    zipped_list = list(zip(list_val_pred[0], list_res))  # unisco la lista dei vecchi valori dei predicati della query iniziale con i valori massimi/minimi con cui costruire la query indotta
+    zipped_list = list(zip(list_val_pred[0],
+                           list_res))  # unisco la lista dei vecchi valori dei predicati della query iniziale con i valori massimi/minimi con cui costruire la query indotta
     for i in zipped_list:
         query = query.replace(i[0], str(i[1]))
     return query
@@ -221,7 +219,7 @@ def measure_FairInd (card_tot_Q, card_tot_newQ, card_AS_Q, card_AS_Qnew):
     return res
 
 
-def proximity(relax_attr, relax_attr_Qind):
+def proximity (relax_attr, relax_attr_Qind):
     point_q = np.zeros(len(relax_attr))
     point_qind = np.zeros(len(relax_attr))
     for i in range(len(relax_attr)):
@@ -263,11 +261,12 @@ def get_table (query):
 
 
 ## CA questa aggiunta da me
-def min_max(sample, attrs):
+def min_max (sample, attrs):
     result = []
     for a in attrs:
-        result += [{'attr': a,'min': sample[a].min(), 'max': sample[a].max()}]
+        result += [{'attr': a, 'min': sample[a].min(), 'max': sample[a].max()}]
     return result
+
 
 def knn_res_Qind (query, CC, df, list_columns):
     time_tree_exec = 0.0
@@ -301,7 +300,9 @@ def knn_res_Qind (query, CC, df, list_columns):
     for indx in range(len(card_AS_Q)):
         if card_AS_Q[indx] >= int(CC[indx]['num']):
             if (len(CC) == 1):
-                test_res_temp = [len(relax_attributes), query, card_tot_Q, card_AS_Q, CC, '', '', '','', '','', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
+                test_res_temp = [len(relax_attributes), query, card_tot_Q, card_AS_Q, CC, '', '', '', '', '', '', '',
+                                 '', '', '', '', '', '', '', '', '', '', '', '', '']
+                print("ciao")
                 return test_res_temp
             continue
         start_time5 = time.time()
@@ -316,13 +317,13 @@ def knn_res_Qind (query, CC, df, list_columns):
         if num_to_be_found > card_AS_Qcomp:
             res_space = pd.DataFrame(space, columns=list_columns)
             list_temp.append(res_space)
+            print("Ciao")
             continue
 
         start_time_tree = time.time()
         knn_points = knn_cov_cons(num_to_be_found, point_normalized, space, norm_data)
         # time_tree_exec = (time.time() - start_time_tree)
         time_tree_exec.append(time.time() - start_time_tree)
-
 
         res_space = pd.DataFrame(knn_points, columns=list_columns)
         list_temp.append(res_space)
@@ -345,6 +346,7 @@ def knn_res_Qind (query, CC, df, list_columns):
     start_time_Qind = time.time()
     list_res: List[Union[int, Any]] = get_new_val_for_pred(res_space_no_duplicate, list_attr, relax_attributes)
     induced_Q_inSQL = induced_query(query, list_res, list_val_pred)
+    print(list_res)
     induced_Q, relax_attributes_Qind = query_pred_tokenize(induced_Q_inSQL)
     time_exec_Qind = time.time() - start_time_Qind
 
@@ -369,7 +371,7 @@ def knn_res_Qind (query, CC, df, list_columns):
                      time_tree_exec,
                      get_relaxation_degree(card_tot_Q, card_tot_res),
                      measure_FairInd(card_tot_Q, card_tot_res, card_AS_Q, card_AS_res),
-                    # measure_DispInd(card_AS_Q, card_tot_res),
+                     # measure_DispInd(card_AS_Q, card_tot_res),
                      measure_DispInd(card_AS_res, card_tot_res),
                      get_relaxation_degree(card_tot_Q, card_tot_Qind),
                      measure_FairInd(card_tot_Q, card_tot_Qind, card_AS_Q, card_AS_Qind),
@@ -415,7 +417,6 @@ def main ():
                                             'time_read_table'
                                             ])
 
-
     CC = [{'AS': ['race'], 'value': ['Black'], 'num': '100'}]
     # CC = [{'AS': ['sex'], 'value': ['Female'], 'num': '120'}]
     # CC = [{'AS': ['sex','race'], 'value': ['Female','Black'], 'num': '500'}]
@@ -430,10 +431,10 @@ def main ():
 
     # for i in range(len(CC)):
     #     CC[i]['num'] = str(input("inserisci il numero da raggiungere per il constraint: "))
-    # df = pd.read_csv('Adult_data_100.csv')
+    df = pd.read_csv(r'C:\Users\Nicolò\Desktop\Tesi\adult_data.csv')
     # query = str(input("Inserire la query: "))
 
-    query = 'SELECT * FROM adult_data WHERE education_num >= 14 AND hours_per_week > 40'
+    query = 'SELECT * FROM adult_data WHERE age <= 46 AND education_num >= 14'
     # query = 'SELECT * FROM adult_data WHERE education_num >= 14 AND age < 30 AND hours_per_week <= 45'
     # query = 'SELECT * FROM adult_data WHERE capital_loss < 1500 AND age < 55 AND hours_per_week < 35'
     # query = 'SELECT * FROM adult_data WHERE age <= 40 AND education_num >= 13 AND hours_per_week > 30 AND capital_gain > 500'
@@ -441,22 +442,23 @@ def main ():
     # query = 'SELECT * FROM adult_data WHERE capital_loss < 1500 AND age < 50 AND hours_per_week > 30'
     # query = 'SELECT * FROM adult_data WHERE age <= 40 AND education_num < 13 AND hours_per_week > 30 AND capital_gain < 500'
 
-    c = psycopg2.connect(host='localhost', port=5432, user='postgres', password='postgreSQL', database='postgres')
+    #c = psycopg2.connect(host='localhost', port=5432, user='postgres', password='postgreSQL', database='postgres')
 
     time_start_read_table = time.time()
-    df = read_table(c , get_table(query) )
+    #df = read_table(c, get_table(query))
     time_end_read_table = (time.time() - time_start_read_table)
     list_columns = list(df.columns)
     test_res_temp = knn_res_Qind(query, CC, df, list_columns)
     test_res_temp += [time_end_read_table]
     s = pd.Series(test_res_temp, index=test_result_csv.columns)
+    print(s)
     test_result_csv = test_result_csv.append(s, ignore_index=True)
     # test_result_csv.to_csv('file1.csv', index=False)
-    test_result_csv.to_csv('res/execution_Q1_norm.csv', index=False)
+    #test_result_csv.to_csv('res/execution_Q1_norm.csv', index=False)
 
-    writer=pd.ExcelWriter('res/execution_Q1_norm.xlsx')
-    test_result_csv.to_excel(writer)
-    writer.save()
+    #writer = pd.ExcelWriter('res/execution_Q1_norm.xlsx')
+    #test_result_csv.to_excel(writer)
+    #writer.save()
 
 
 if __name__ == '__main__':
