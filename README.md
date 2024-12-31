@@ -4,7 +4,7 @@ This repository contains the code for a final test project for the bachelor's de
 
 ## Overview 👀
 
-This project explores the impact of dataset transformations on bias, focusing on techniques like query rewriting and extended execution to meet coverage constraints and ensure fairness (using KNN based on [kd-tree](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KDTree.html)). It emphasizes transparency and compliance with ethical standards like GDPR while equipping learners with practical skills to address discrimination in data processing.
+This project explores the impact of dataset transformations on bias, focusing on techniques like query rewriting and extended execution to meet coverage constraints and ensure fairness (using KNN based on [kd-tree](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KDTree.html)). It emphasizes transparency and compliance with ethical standards like GDPR while providing a tool to avoid discrimination in data processing.
 
 ## Repository Structure 📂
 
